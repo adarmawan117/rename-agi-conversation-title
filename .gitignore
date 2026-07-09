@@ -12,3 +12,7 @@ venv.bak/
 
 # User settings
 settings.json
+
+*.spec
+dist
+build

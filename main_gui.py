@@ -17,6 +17,17 @@ class Ui_Frame(object):
         Frame.resize(500, 320)
         Frame.setWindowTitle("Antigravity Conversation Renamer")
         
+        # Load Application Icon
+        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "google-antigravity.ico")
+        if getattr(sys, 'frozen', False):
+            icon_path = os.path.join(sys._MEIPASS, "google-antigravity.ico")
+            
+        if os.path.exists(icon_path):
+            icon = QtGui.QIcon()
+            icon.addPixmap(QtGui.QPixmap(icon_path),
+                           QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            Frame.setWindowIcon(icon)
+        
         # Styles
         label_style = "font-weight: bold; font-size: 10pt;"
         input_style = "padding: 5px; font-size: 10pt; border: 1px solid #ccc; border-radius: 4px;"
