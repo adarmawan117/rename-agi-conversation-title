@@ -87,7 +87,7 @@ Hasilnya: Judul bisa diperpendek menjadi 2 karakter atau dipanjangkan hingga 500
 5. Klik **Process Rename**.
 6. Klik **Yes** pada popup notifikasi yang muncul, dan biarkan sistem menutup serta membuka kembali IDE Anda.
 7. Setelah IDE terbuka kembali, klik _conversation_ lain dan buka kembali _conversation_ yang baru saja Anda ubah namanya agar IDE mereload judul tersebut dengan benar.
-   > **💡 Info Teknis:** Berdasarkan temuan saat proses _reverse engineering_, meskipun _database_ SQLite berhasil dimodifikasi dan IDE di-_restart_, mekanisme _caching_ internal dari _frontend_ IDE kadang masih menahan _state_ UI terakhir dari percakapan yang sedang aktif. Dengan berpindah ke percakapan lain sejenak, kita memaksa IDE untuk melakukan proses _re-fetch_ dan merender ulang _metadata_ percakapan (termasuk judul yang baru) langsung dari _database_.
+   > **💡 Info Teknis:** Berdasarkan temuan saat proses _reverse engineering_, meskipun _database_ SQLite berhasil dimodifikasi dan IDE di-_restart_, mekanisme _caching_ internal dari _frontend_ IDE kadang masih menahan _state_ UI terakhir dari percakapan yang sedang aktif. Dengan mereload percakapan dan membukanya kembali, kita memaksa IDE untuk melakukan proses _re-fetch_ dan merender ulang _metadata_ percakapan (termasuk judul yang baru) langsung dari _database_.
 
 ---
 
