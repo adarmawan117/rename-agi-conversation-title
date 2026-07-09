@@ -83,6 +83,7 @@ Hasilnya: Judul bisa diperpendek menjadi 2 karakter atau dipanjangkan hingga 500
 4. Ketikkan judul pengganti yang baru.
 5. Klik **Process Rename**.
 6. Klik **Yes** pada popup notifikasi yang muncul, dan biarkan sistem menutup serta membuka kembali IDE Anda.
+7. Setelah IDE terbuka kembali, klik *conversation* lain dan buka kembali *conversation* yang baru saja Anda ubah namanya agar IDE mereload judul tersebut dengan benar.
 
 ---
 
