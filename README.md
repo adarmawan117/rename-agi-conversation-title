@@ -93,6 +93,6 @@ Hasilnya: Judul bisa diperpendek menjadi 2 karakter atau dipanjangkan hingga 500
 
 ## 📝 Catatan Tambahan (Disclaimer)
 
-_Tool_ ini bekerja dengan mengubah file _database cache_ (UI State) AGI secara langsung dan _offline_. Meskipun secara struktur biner hal ini dibuktikan aman 100% dengan menghitung ulang Varints, sangat disarankan untuk tidak mengubah judul secara drastis bersamaan ketika jendela percakapan tersebut sedang aktif/di-generate oleh asisten IDE untuk menghindari _lock file_.
+---
 
-**Dibuat oleh Adarmawan - 2026**
+Dikembangkan dengan ❤️ oleh [ADR Programming](https://www.instagram.com/adr_programming/)

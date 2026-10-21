@@ -91,6 +91,14 @@ class Ui_Frame(object):
         self.btn_process.setStyleSheet(btn_style)
         self.btn_process.clicked.connect(self.process_rename)
 
+        # Footer Developer Credit
+        self.lbl_footer = QLabel(Frame)
+        self.lbl_footer.setGeometry(QtCore.QRect(20, 285, 460, 25))
+        self.lbl_footer.setAlignment(QtCore.Qt.AlignCenter)
+        self.lbl_footer.setText('Dikembangkan dengan ❤️ oleh <a href="https://www.instagram.com/adr_programming/" style="color: #2b78e4; text-decoration: none; font-weight: bold;">ADR Programming</a>')
+        self.lbl_footer.setOpenExternalLinks(True)
+        self.lbl_footer.setStyleSheet("font-size: 9pt; color: #666;")
+
     def browse_path(self):
         file_path, _ = QFileDialog.getOpenFileName(None, "Pilih Antigravity IDE.exe", "C:\\", "Executable (*.exe)")
         if file_path:
