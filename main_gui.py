@@ -35,29 +35,12 @@ QMainWindow, QWidget#CentralWidget {
     font-size: 9.5pt;
 }
 
-QFrame#RootContainer {
-    background-color: #0c1a3a;
-    border: 1px solid #1e3a8a;
-    border-radius: 0px;
-}
-
-QFrame#RootContainerMaximized {
-    background-color: #0c1a3a;
-    border: none;
-}
-
-/* Custom In-App Title Bar */
-QWidget#CustomTitleBar {
-    background-color: #081329;
-    border-bottom: 1px solid #1e3a8a;
-}
-
-QLabel#windowTitleText {
+QLabel#titleLabel {
+    font-size: 13pt;
+    font-weight: 700;
+    color: #ffffff;
     font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
-    font-size: 9pt;
-    font-weight: 500;
-    color: #bfdbfe;
-    letter-spacing: 0.2px;
+    letter-spacing: -0.2px;
 }
 
 QLabel#windowBadge {
@@ -69,38 +52,6 @@ QLabel#windowBadge {
     font-size: 7.5pt;
     font-weight: 600;
     font-family: 'JetBrains Mono', Consolas, monospace;
-}
-
-QPushButton#titleMinBtn, QPushButton#titleMaxBtn {
-    background-color: transparent;
-    border: none;
-    color: #60a5fa;
-    font-size: 11pt;
-    font-weight: bold;
-    padding: 0px;
-}
-
-QPushButton#titleMinBtn:hover, QPushButton#titleMaxBtn:hover {
-    background-color: #1e3a8a;
-    color: #ffffff;
-}
-
-QPushButton#titleCloseBtn {
-    background-color: transparent;
-    border: none;
-    color: #60a5fa;
-    font-size: 11pt;
-    font-weight: bold;
-    padding: 0px;
-}
-
-QPushButton#titleCloseBtn:hover {
-    background-color: #e11d48;
-    color: #ffffff;
-}
-
-QPushButton#titleCloseBtn:pressed {
-    background-color: #be123c;
 }
 
 /* Cards & Content */
@@ -331,77 +282,53 @@ QMessageBox QPushButton:default:hover {
 """
 
 
-def setup_windows_frameless(window):
+def apply_dark_window_titlebar(window):
     """
-    Mengonfigurasi jendela frameless di Windows:
-    - Mengaktifkan WS_MINIMIZEBOX, WS_MAXIMIZEBOX, WS_SYSMENU agar klik taskbar berfungsi
-    - Mengaktifkan WS_THICKFRAME agar Windows mengizinkan resize border
-    - Mengaktifkan DWM drop shadow native
-    - Menghormati sudut bulat di Windows 11 jika didukung
+    Menerapkan tema gelap pada title bar native Windows:
+    - DWMWA_USE_IMMERSIVE_DARK_MODE (20 & 19): Mode gelap native Windows 10 & 11
+    - DWMWA_CAPTION_COLOR (35): Background title bar Ocean Dark (#0c1a3a) di Windows 11
+    - DWMWA_TEXT_COLOR (36): Teks title bar putih/soft (#f8fafc) di Windows 11
+    - DWMWA_BORDER_COLOR (34): Border halus (#1e3a8a) di Windows 11
     """
     if sys.platform != "win32":
         return
-
     try:
         hwnd = int(window.winId())
         if not hwnd:
             return
 
-        GWL_STYLE = -16
-        WS_MINIMIZEBOX = 0x00020000
-        WS_MAXIMIZEBOX = 0x00010000
-        WS_SYSMENU     = 0x00080000
-        WS_THICKFRAME  = 0x00040000
-        style = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_STYLE)
-        ctypes.windll.user32.SetWindowLongW(
-            hwnd,
-            GWL_STYLE,
-            style | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU | WS_THICKFRAME
-        )
-        ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0027)
+        # 1. Immersive Dark Mode (Windows 10 Build 17763+ & Windows 11)
+        val = ctypes.c_int(1)
+        for attr in [20, 19]:
+            res = ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                hwnd, attr, ctypes.byref(val), ctypes.sizeof(val)
+            )
+            if res == 0:
+                break
 
-        # Drop shadow via DwmExtendFrameIntoClientArea
-        class MARGINS(ctypes.Structure):
-            _fields_ = [
-                ("cxLeftWidth", ctypes.c_int),
-                ("cxRightWidth", ctypes.c_int),
-                ("cyTopHeight", ctypes.c_int),
-                ("cyBottomHeight", ctypes.c_int)
-            ]
-        margins = MARGINS(1, 1, 1, 1)
-        ctypes.windll.dwmapi.DwmExtendFrameIntoClientArea(hwnd, ctypes.byref(margins))
-
-        # Windows 11 Rounded corners
-        DWMWA_WINDOW_CORNER_PREFERENCE = 33
-        DWMWCP_ROUND = 2
-        corner_pref = ctypes.c_int(DWMWCP_ROUND)
+        # 2. Custom Title Bar Background Color (Windows 11 Build 22000+)
+        # #0c1a3a -> 0x003A1A0C (COLORREF format 0x00BBGGRR)
+        DWMWA_CAPTION_COLOR = 35
+        caption_color = ctypes.c_int(0x003A1A0C)
         ctypes.windll.dwmapi.DwmSetWindowAttribute(
-            hwnd,
-            DWMWA_WINDOW_CORNER_PREFERENCE,
-            ctypes.byref(corner_pref),
-            ctypes.sizeof(corner_pref)
+            hwnd, DWMWA_CAPTION_COLOR, ctypes.byref(caption_color), ctypes.sizeof(caption_color)
         )
-    except Exception as e:
-        pass
 
+        # 3. Custom Title Bar Text Color (Windows 11 Build 22000+)
+        # #f8fafc -> 0x00FCFAF8
+        DWMWA_TEXT_COLOR = 36
+        text_color = ctypes.c_int(0x00FCFAF8)
+        ctypes.windll.dwmapi.DwmSetWindowAttribute(
+            hwnd, DWMWA_TEXT_COLOR, ctypes.byref(text_color), ctypes.sizeof(text_color)
+        )
 
-def apply_dark_dialog_titlebar(dialog):
-    """Menerapkan dark title bar pada pop-up dialog di Windows."""
-    if sys.platform != "win32":
-        return
-    try:
-        hwnd = int(dialog.winId())
-        if hwnd:
-            DWMWA_USE_IMMERSIVE_DARK_MODE = 20
-            val = ctypes.c_int(1)
-            ctypes.windll.dwmapi.DwmSetWindowAttribute(
-                hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ctypes.byref(val), ctypes.sizeof(val)
-            )
-            DWMWA_CAPTION_COLOR = 35
-            caption_col = ctypes.c_int(0x003A1A0C)
-            ctypes.windll.dwmapi.DwmSetWindowAttribute(
-                hwnd, DWMWA_CAPTION_COLOR, ctypes.byref(caption_col), ctypes.sizeof(caption_col)
-            )
+        # 4. Custom Border Color (Windows 11 Build 22000+)
+        # #1e3a8a -> 0x008A3A1E
+        DWMWA_BORDER_COLOR = 34
+        border_color = ctypes.c_int(0x008A3A1E)
+        ctypes.windll.dwmapi.DwmSetWindowAttribute(
+            hwnd, DWMWA_BORDER_COLOR, ctypes.byref(border_color), ctypes.sizeof(border_color)
+        )
     except Exception:
         pass
 
@@ -412,7 +339,7 @@ def show_info(parent, title, text):
     msg.setWindowTitle(title)
     msg.setText(text)
     msg.setStandardButtons(QMessageBox.Ok)
-    apply_dark_dialog_titlebar(msg)
+    apply_dark_window_titlebar(msg)
     return msg.exec_()
 
 
@@ -422,7 +349,7 @@ def show_warning(parent, title, text):
     msg.setWindowTitle(title)
     msg.setText(text)
     msg.setStandardButtons(QMessageBox.Ok)
-    apply_dark_dialog_titlebar(msg)
+    apply_dark_window_titlebar(msg)
     return msg.exec_()
 
 
@@ -432,7 +359,7 @@ def show_critical(parent, title, text):
     msg.setWindowTitle(title)
     msg.setText(text)
     msg.setStandardButtons(QMessageBox.Ok)
-    apply_dark_dialog_titlebar(msg)
+    apply_dark_window_titlebar(msg)
     return msg.exec_()
 
 
@@ -443,87 +370,8 @@ def show_question(parent, title, text, buttons=QMessageBox.Yes | QMessageBox.No,
     msg.setText(text)
     msg.setStandardButtons(buttons)
     msg.setDefaultButton(default)
-    apply_dark_dialog_titlebar(msg)
+    apply_dark_window_titlebar(msg)
     return msg.exec_()
-
-
-class CustomTitleBar(QWidget):
-    """
-    Custom in-app title bar bergaya modern frameless
-    mengikuti tema Ocean Gelap ADR Prompt Manager.
-    """
-    def __init__(self, parent_window):
-        super().__init__(parent_window)
-        self.parent_window = parent_window
-        self.setFixedHeight(36)
-        self.setObjectName("CustomTitleBar")
-        self.init_ui()
-
-    def init_ui(self):
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 0, 0, 0)
-        layout.setSpacing(8)
-
-        # Icon
-        self.icon_label = QLabel()
-        self.icon_label.setFixedSize(18, 18)
-        self.icon_label.setScaledContents(True)
-        self.icon_label.setAttribute(Qt.WA_TransparentForMouseEvents)
-
-        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "google-antigravity.ico")
-        if getattr(sys, 'frozen', False):
-            icon_path = os.path.join(sys._MEIPASS, "google-antigravity.ico")
-        if os.path.exists(icon_path):
-            self.icon_label.setPixmap(QtGui.QPixmap(icon_path))
-
-        layout.addWidget(self.icon_label)
-
-        # Title
-        self.title_label = QLabel("Antigravity Conversation Renamer")
-        self.title_label.setObjectName("windowTitleText")
-        self.title_label.setAttribute(Qt.WA_TransparentForMouseEvents)
-        layout.addWidget(self.title_label)
-
-        # Badge
-        self.badge = QLabel("v1.0")
-        self.badge.setObjectName("windowBadge")
-        self.badge.setAttribute(Qt.WA_TransparentForMouseEvents)
-        layout.addWidget(self.badge)
-
-        layout.addStretch()
-
-        # Window Controls
-        self.btn_min = QPushButton("―")
-        self.btn_min.setObjectName("titleMinBtn")
-        self.btn_min.setToolTip("Minimalkan")
-        self.btn_min.setFixedSize(44, 36)
-        self.btn_min.clicked.connect(self.parent_window.showMinimized)
-        layout.addWidget(self.btn_min)
-
-        self.btn_max = QPushButton("□")
-        self.btn_max.setObjectName("titleMaxBtn")
-        self.btn_max.setToolTip("Maksimalkan")
-        self.btn_max.setFixedSize(44, 36)
-        self.btn_max.clicked.connect(self.parent_window.toggle_maximize)
-        layout.addWidget(self.btn_max)
-
-        self.btn_close = QPushButton("✕")
-        self.btn_close.setObjectName("titleCloseBtn")
-        self.btn_close.setToolTip("Tutup")
-        self.btn_close.setFixedSize(46, 36)
-        self.btn_close.clicked.connect(self.parent_window.close)
-        layout.addWidget(self.btn_close)
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            if self.parent_window.windowHandle():
-                self.parent_window.windowHandle().startSystemMove()
-        super().mousePressEvent(event)
-
-    def mouseDoubleClickEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.parent_window.toggle_maximize()
-        super().mouseDoubleClickEvent(event)
 
 
 class DataLoaderThread(QThread):
@@ -537,12 +385,9 @@ class DataLoaderThread(QThread):
 
 
 class MainApp(QMainWindow):
-    BORDER_WIDTH = 8
-
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Antigravity Conversation Renamer")
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Window | Qt.WindowMinMaxButtonsHint)
         self.resize(880, 680)
         self.setMinimumSize(720, 560)
 
@@ -561,97 +406,44 @@ class MainApp(QMainWindow):
 
     def showEvent(self, event):
         super().showEvent(event)
-        setup_windows_frameless(self)
-
-    def changeEvent(self, event):
-        if event.type() == QtCore.QEvent.WindowStateChange:
-            if self.isMaximized():
-                self.title_bar.btn_max.setText("❐")
-                self.title_bar.btn_max.setToolTip("Pulihkan")
-                self.root_container.setObjectName("RootContainerMaximized")
-                self.root_container.setStyle(self.root_container.style())
-            else:
-                self.title_bar.btn_max.setText("□")
-                self.title_bar.btn_max.setToolTip("Maksimalkan")
-                self.root_container.setObjectName("RootContainer")
-                self.root_container.setStyle(self.root_container.style())
-        super().changeEvent(event)
-
-    def toggle_maximize(self):
-        if self.isMaximized():
-            self.showNormal()
-        else:
-            self.showMaximized()
-
-    def nativeEvent(self, eventType, message):
-        """
-        Gunakan penanganan native Windows:
-        - WM_NCCALCSIZE (0x0083): Menghilangkan border frame putih non-client DWM bawaan Windows
-        - WM_NCHITTEST (0x0084): Mengatur area resize border kursor secara native & responsif
-        """
-        if sys.platform == "win32" and eventType == b"windows_generic_MSG":
-            try:
-                msg = wintypes.MSG.from_address(message.__int__())
-                if msg.message == 0x0083:  # WM_NCCALCSIZE - Hilangkan frame border putih non-client DWM
-                    return True, 0
-
-                if not self.isMaximized() and msg.message == 0x0084:  # WM_NCHITTEST
-                    x = ctypes.c_short(msg.lParam & 0xFFFF).value
-                    y = ctypes.c_short((msg.lParam >> 16) & 0xFFFF).value
-                    local_pt = self.mapFromGlobal(QtCore.QPoint(x, y))
-                    lx = local_pt.x()
-                    ly = local_pt.y()
-                    w = self.width()
-                    h = self.height()
-                    b = self.BORDER_WIDTH
-
-                    # Sudut (Corner Resizing)
-                    if lx <= b and ly <= b:
-                        return True, 13  # HTTOPLEFT
-                    elif lx >= w - b and ly <= b:
-                        return True, 14  # HTTOPRIGHT
-                    elif lx <= b and ly >= h - b:
-                        return True, 16  # HTBOTTOMLEFT
-                    elif lx >= w - b and ly >= h - b:
-                        return True, 17  # HTBOTTOMRIGHT
-                    # Tepi (Edge Resizing)
-                    elif lx <= b:
-                        return True, 10  # HTLEFT
-                    elif lx >= w - b:
-                        return True, 11  # HTRIGHT
-                    elif ly <= b:
-                        return True, 12  # HTTOP
-                    elif ly >= h - b:
-                        return True, 15  # HTBOTTOM
-            except Exception:
-                pass
-
-        return super().nativeEvent(eventType, message)
+        apply_dark_window_titlebar(self)
 
     def init_ui(self):
-        # Root Frame with subtle border
-        self.root_container = QFrame(self)
-        self.root_container.setObjectName("RootContainer")
-        self.setCentralWidget(self.root_container)
+        central_widget = QWidget(self)
+        central_widget.setObjectName("CentralWidget")
+        self.setCentralWidget(central_widget)
 
-        root_layout = QVBoxLayout(self.root_container)
-        root_layout.setContentsMargins(0, 0, 0, 0)
-        root_layout.setSpacing(0)
-
-        # 1. Custom In-App Title Bar
-        self.title_bar = CustomTitleBar(self)
-        root_layout.addWidget(self.title_bar)
-
-        # 2. Main Content Container
-        content_widget = QWidget()
-        content_layout = QVBoxLayout(content_widget)
-        content_layout.setContentsMargins(16, 12, 16, 10)
+        content_layout = QVBoxLayout(central_widget)
+        content_layout.setContentsMargins(16, 14, 16, 10)
         content_layout.setSpacing(10)
 
         # --- 1. Header Hero Bar ---
         header_layout = QHBoxLayout()
         header_info = QVBoxLayout()
-        header_info.setSpacing(2)
+        header_info.setSpacing(4)
+
+        title_layout = QHBoxLayout()
+        title_layout.setSpacing(8)
+
+        # App Icon in Header
+        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "google-antigravity.ico")
+        if getattr(sys, 'frozen', False):
+            icon_path = os.path.join(sys._MEIPASS, "google-antigravity.ico")
+        if os.path.exists(icon_path):
+            icon_lbl = QLabel()
+            icon_lbl.setPixmap(QtGui.QPixmap(icon_path).scaled(22, 22, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            title_layout.addWidget(icon_lbl)
+
+        title_lbl = QLabel("Antigravity Conversation Renamer")
+        title_lbl.setObjectName("titleLabel")
+        title_layout.addWidget(title_lbl)
+
+        badge = QLabel("v1.0")
+        badge.setObjectName("windowBadge")
+        title_layout.addWidget(badge)
+        title_layout.addStretch()
+
+        header_info.addLayout(title_layout)
 
         subtitle_lbl = QLabel("Kelola, Sinkronisasi & Ubah Judul Percakapan Google Antigravity IDE Secara Aman")
         subtitle_lbl.setObjectName("subtitleLabel")
@@ -782,14 +574,10 @@ class MainApp(QMainWindow):
         footer_layout.addWidget(self.lbl_footer)
         content_layout.addLayout(footer_layout)
 
-        root_layout.addWidget(content_widget, stretch=1)
-
-        # --- 6. Status Bar with Size Grip ---
+        # --- 6. Status Bar ---
         self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
         self.status_bar.showMessage("Siap.")
-        self.size_grip = QSizeGrip(self)
-        self.status_bar.addPermanentWidget(self.size_grip)
-        root_layout.addWidget(self.status_bar)
 
     def browse_path(self):
         file_path, _ = QFileDialog.getOpenFileName(
