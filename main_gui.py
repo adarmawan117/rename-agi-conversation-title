@@ -21,6 +21,7 @@ from rename_logic import (
     rename_conversation,
     scan_zombie_conversations,
     clean_zombie_conversations,
+    sync_all_active_conversations_to_sidebar,
     get_conversations_dir
 )
 from settings_manager import get_agi_path, save_agi_path
@@ -381,6 +382,10 @@ class DataLoaderThread(QThread):
     def run(self):
         convs = list_conversations()
         zombie_count, _ = scan_zombie_conversations()
+        try:
+            sync_all_active_conversations_to_sidebar()
+        except Exception:
+            pass
         self.data_loaded.emit(convs, zombie_count)
 
 
@@ -766,7 +771,16 @@ class MainApp(QMainWindow):
     def _launch_agi_after_kill(self, agi_path):
         try:
             if agi_path and os.path.exists(agi_path):
-                subprocess.Popen([agi_path], creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+                DETACHED_PROCESS = 0x00000008
+                CREATE_NEW_PROCESS_GROUP = 0x00000200
+                subprocess.Popen(
+                    [agi_path],
+                    creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP,
+                    close_fds=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    stdin=subprocess.DEVNULL
+                )
                 self.status_bar.showMessage("Antigravity IDE berhasil dibuka kembali.", 4000)
             else:
                 show_warning(
