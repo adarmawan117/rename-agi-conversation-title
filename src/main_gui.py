@@ -65,49 +65,10 @@ def get_app_icon_path() -> str:
 
 try:
     from src.styles import OCEAN_THEME_QSS, apply_dark_window_titlebar
+    from src.method.dialog import show_info, show_warning, show_critical, show_question
 except ImportError:
     from styles import OCEAN_THEME_QSS, apply_dark_window_titlebar
-
-
-def show_info(parent, title, text):
-    msg = QMessageBox(parent)
-    msg.setIcon(QMessageBox.Information)
-    msg.setWindowTitle(title)
-    msg.setText(text)
-    msg.setStandardButtons(QMessageBox.Ok)
-    apply_dark_window_titlebar(msg)
-    return msg.exec_()
-
-
-def show_warning(parent, title, text):
-    msg = QMessageBox(parent)
-    msg.setIcon(QMessageBox.Warning)
-    msg.setWindowTitle(title)
-    msg.setText(text)
-    msg.setStandardButtons(QMessageBox.Ok)
-    apply_dark_window_titlebar(msg)
-    return msg.exec_()
-
-
-def show_critical(parent, title, text):
-    msg = QMessageBox(parent)
-    msg.setIcon(QMessageBox.Critical)
-    msg.setWindowTitle(title)
-    msg.setText(text)
-    msg.setStandardButtons(QMessageBox.Ok)
-    apply_dark_window_titlebar(msg)
-    return msg.exec_()
-
-
-def show_question(parent, title, text, buttons=QMessageBox.Yes | QMessageBox.No, default=QMessageBox.Yes):
-    msg = QMessageBox(parent)
-    msg.setIcon(QMessageBox.Question)
-    msg.setWindowTitle(title)
-    msg.setText(text)
-    msg.setStandardButtons(buttons)
-    msg.setDefaultButton(default)
-    apply_dark_window_titlebar(msg)
-    return msg.exec_()
+    from method.dialog import show_info, show_warning, show_critical, show_question
 
 
 class DataLoaderThread(QThread):

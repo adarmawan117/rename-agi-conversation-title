@@ -10,9 +10,9 @@ Aplikasi ini didistribusikan sebagai file biner Windows mandiri (`AGI Renamer.ex
 
 ```mermaid
 graph LR
-    Src[run.py + src/ main_gui, rename_logic, settings_manager] --> PyInstaller[PyInstaller Engine]
+    Src[run.py + src/ modules<br/>main_gui, rename_logic, settings_manager,<br/>styles, method/dialog] --> PyInstaller[PyInstaller Engine]
+    Res[resources/<br/>styles/theme.qss + icon/] --> PyInstaller
     Spec[AGI Renamer.spec] --> PyInstaller
-    Icon[resources/icon/google-antigravity.ico] --> PyInstaller
     PyInstaller --> OutDir[dist/AGI Renamer.exe<br/>Standalone Portable EXE]
 ```
 
@@ -35,7 +35,7 @@ File spesifikasi utama berada di root proyek: [`AGI Renamer.spec`](../AGI%20Rena
    datas=[('resources', 'resources')]
    icon=['resources/icon/google-antigravity.ico']
    ```
-   Menyematkan seluruh aset `resources/` (ikon dan tema QSS) ke dalam bundle runtime virtual (`sys._MEIPASS`) dan menanamkan ikon ke dalam resource header binary Windows.
+   Menyematkan seluruh direktori `resources/` (berisi file tema `resources/styles/theme.qss` dan ikon `resources/icon/`) ke dalam bundle runtime virtual (`sys._MEIPASS`) dan menanamkan ikon aplikasi ke dalam resource header biner Windows.
 
 3. **Windowed Mode (Tanpa Jendela Konsol Hitam):**
    ```python
@@ -45,15 +45,32 @@ File spesifikasi utama berada di root proyek: [`AGI Renamer.spec`](../AGI%20Rena
 
 ---
 
-## 3. Resolusi Path Ikon saat Runtime (`sys._MEIPASS`)
+## 3. Resolusi Path Ikon & Aset saat Runtime (`sys._MEIPASS`)
 
-Di dalam kode [`src/main_gui.py`](../src/main_gui.py), penanganan path ikon dirancang adaptif antara mode development skrip dan mode binary compiled:
+Di dalam kode [`src/main_gui.py`](../src/main_gui.py) dan [`src/styles.py`](../src/styles.py), penanganan path dirancang adaptif multi-tier antara mode development skrip dan mode binary compiled PyInstaller:
 
 ```python
-icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "google-antigravity.ico")
-if getattr(sys, 'frozen', False):
-    # Dijalankan sebagai standalone binary hasil kompilasi PyInstaller
-    icon_path = os.path.join(sys._MEIPASS, "google-antigravity.ico")
+def get_app_icon_path() -> str:
+    """Mencari google-antigravity.ico di frozen bundle, resources/icon, parent root, dan current dir."""
+    if getattr(sys, 'frozen', False):
+        p_res = os.path.join(sys._MEIPASS, "resources", "icon", "google-antigravity.ico")
+        if os.path.exists(p_res):
+            return p_res
+        p_root = os.path.join(sys._MEIPASS, "google-antigravity.ico")
+        if os.path.exists(p_root):
+            return p_root
+
+    candidates = [
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "resources", "icon", "google-antigravity.ico"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "icon", "google-antigravity.ico"),
+        os.path.join("resources", "icon", "google-antigravity.ico"),
+        # Fallback root path
+        "google-antigravity.ico"
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return ""
 ```
 
 ---

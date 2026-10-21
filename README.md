@@ -94,7 +94,21 @@ Hasilnya: Judul bisa diperpendek menjadi 2 karakter atau dipanjangkan hingga 500
 
 ---
 
+## 📚 Dokumentasi Teknis (`.docs`)
+
+Panduan arsitektur mendalam, spesifikasi reverse engineering, dan panduan keamanan tersedia di dalam folder [`.docs/`](.docs/README.md):
+
+* [**`AI_CONTEXT.md`**](.docs/AI_CONTEXT.md): Rekam jejak riset, solusi bug hilang percakapan via Dual-Sync UPSERT, zombie cleaner, subprocess detached flags, dan theming DWM.
+* [**`ARCHITECTURE.md`**](.docs/ARCHITECTURE.md): Diagram alur komponen, sequence diagram dual-sync pipeline, Protobuf wire format (Field 30/4 vs 1/2.1), dan modul responsibilities.
+* [**`BUILD_AND_PACKAGING.md`**](.docs/BUILD_AND_PACKAGING.md): Panduan kompilasi PyInstaller (`AGI Renamer.spec`), hidden imports dynamic blackboxprotobuf, dan bundling resources.
+* [**`SENSITIVE_DATA_AND_SECURITY.md`**](.docs/SENSITIVE_DATA_AND_SECURITY.md): Standar sanitasi identitas lokal, dynamic path resolution, proteksi kredensial, dan karantina `.gitignore`.
+
+---
+
 ## 📝 Catatan Tambahan (Disclaimer)
+
+* Aplikasi ini bekerja dengan membaca dan memodifikasi file penyimpanan lokal Antigravity IDE di komputer Anda secara langsung.
+* Sebelum memodifikasi database, aplikasi otomatis membuat file cadangan (`.bak`) untuk menjamin keamanan integritas data percakapan Anda.
 
 ---
 

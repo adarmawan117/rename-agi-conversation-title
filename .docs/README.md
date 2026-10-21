@@ -18,8 +18,10 @@ Direktori `.docs` berisi panduan arsitektur mendalam, rekam jejak teknis, dan st
 ## Panduan Cepat untuk Agen AI & Kontributor Baru
 
 1. **Jaga Konsistensi Dual-Sync:**
-   Jangan pernah hanya memodifikasi file `.db` atau hanya `state.vscdb`. Selalu gunakan fungsi pembungkus di [`rename_logic.py`](../rename_logic.py).
-2. **Jangan Meng-hardcode User Path:**
+   Jangan pernah hanya memodifikasi file `.db` atau hanya `state.vscdb`. Selalu gunakan fungsi pembungkus di [`src/rename_logic.py`](../src/rename_logic.py).
+2. **Gunakan Helper Modul Terstandarisasi:**
+   Untuk dialog popup gunakan [`src/method/dialog.py`](../src/method/dialog.py) dan untuk penataan tema/DWM gunakan [`src/styles.py`](../src/styles.py).
+3. **Jangan Meng-hardcode User Path:**
    Jangan pernah menuliskan nama akun lokal Windows (seperti `<username>`) ke dalam kode maupun file markdown yang ter-commit.
-3. **Patuhi Git Protocol:**
+4. **Patuhi Git Protocol:**
    Jangan pernah menjalankan `git commit` atau `git push` tanpa instruksi eksplisit dari pengguna.

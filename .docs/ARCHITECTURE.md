@@ -10,7 +10,10 @@ Aplikasi ini dibangun menggunakan arsitektur modular berbasis Python, PyQt5, dan
 
 ```mermaid
 graph TD
-    User([Pengguna / GUI]) --> MainGUI[main_gui.py<br/>PyQt5 GUI + Ocean Theme + DWM Titlebar]
+    User([Pengguna / GUI]) --> MainGUI[main_gui.py<br/>PyQt5 GUI]
+    MainGUI --> StylesMgr[src/styles.py<br/>Theme Loader & DWM Windowing]
+    StylesMgr --> ThemeQSS[(resources/styles/theme.qss)]
+    MainGUI --> DialogHelper[src/method/dialog.py<br/>Styled Popups with DWM Titlebar]
     MainGUI --> SettingsMgr[settings_manager.py<br/>Manajemen settings.json]
     MainGUI --> DataLoader[DataLoaderThread<br/>QThread Background Worker]
     DataLoader --> RenameLogic[rename_logic.py<br/>Dual-Sync & Maintenance Engine]
@@ -31,6 +34,7 @@ graph TD
 | :--- | :--- |
 | [`run.py`](../run.py) | **Titik Masuk Utama (Root Entry Point):**<br/>- Menyiapkan environment `sys.path` dan memanggil `src.main_gui.main()`. |
 | [`src/main_gui.py`](../src/main_gui.py) | **Antarmuka Pengguna & Windowing:**<br/>- Menampilkan antarmuka PyQt5 bertema *Ocean Dark* (meniru standar ADR Prompt Manager).<br/>- Mengintegrasikan Windows DWM API (`dwmapi.dll`) untuk title bar native gelap tanpa bug kursor/border.<br/>- Menjalankan background threading (`DataLoaderThread`) agar UI tidak freeze saat parsing SQLite/Protobuf.<br/>- Menangani lifecycle reload Antigravity IDE secara aman via `subprocess.Popen` (detached). |
+| [`src/method/dialog.py`](../src/method/dialog.py) | **Dialog & Pesan Terstandarisasi:**<br/>- Menyediakan helper dialog pop-up (`show_info`, `show_warning`, `show_critical`, `show_question`) dengan dekorasi Windows DWM title bar gelap terstandarisasi. |
 | [`src/rename_logic.py`](../src/rename_logic.py) | **Mesin Inti Dual-Sync & Maintenance:**<br/>- Membaca dan mem-parsing database percakapan fisik (`.db`).<br/>- Mengubah judul pada payload Protobuf dalam SQLite `steps` (`update_db_title`).<br/>- Memperbarui atau melakukan **UPSERT** pada cache sidebar `state.vscdb` (`update_global_storage_title`).<br/>- Memindai dan membasmi entri zombie/hantu (`clean_zombie_conversations`).<br/>- Memulihkan dan menyinkronkan seluruh percakapan disk ke sidebar (`sync_all_active_conversations_to_sidebar`). |
 | [`src/settings_manager.py`](../src/settings_manager.py) | **Konfigurasi Lokal Dinamis:**<br/>- Menyimpan dan memuat path executable Antigravity IDE.<br/>- Melakukan fallback otomatis ke path default di `%LOCALAPPDATA%` / `~/AppData/Local/Programs/Antigravity IDE/Antigravity IDE.exe`. |
 | [`src/styles.py`](../src/styles.py) | **Mesin Tema & Windowing DWM:**<br/>- Loader stylesheet QSS (`load_theme_qss`) dengan deteksi multi-tier (frozen bundle, resources, fallback).<br/>- Integrasi Windows DWM API (`apply_dark_window_titlebar`) untuk pewarnaan title bar native. |

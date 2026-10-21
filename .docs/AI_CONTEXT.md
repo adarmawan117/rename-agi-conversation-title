@@ -80,8 +80,8 @@ Aplikasi menggunakan jendela native OS standar (`QMainWindow` tanpa `FramelessWi
   - `DWMWA_USE_IMMERSIVE_DARK_MODE` (Attr 20/19): Mengaktifkan mode gelap native Windows untuk title bar dan kontrol min/max/close.
   - `DWMWA_CAPTION_COLOR` (Attr 35): Mengatur background title bar menjadi warna Ocean Dark (`#0c1a3a` -> `0x003A1A0C`).
   - `DWMWA_TEXT_COLOR` (Attr 36): Teks judul putih/soft (`0x00FCFAF8`).
-  - `DWMWA_BORDER_COLOR` (Attr 34): Border halus (`0x008A3A1E`).
-* **Dialog Pop-up:** Seluruh `QMessageBox` (info, warning, critical, question) dipanggil melalui helper fungsi wrapper agar otomatis menerapkan dark title bar via DWM.
+* **Dialog Pop-up Terstandarisasi:** Seluruh `QMessageBox` (info, warning, critical, question) dipusatkan di [`src/method/dialog.py`](../src/method/dialog.py) agar otomatis menerapkan dark title bar via DWM tanpa duplikasi kode.
+* **Isolasi Tema Stylesheet:** Seluruh styling dipisahkan ke [`resources/styles/theme.qss`](../resources/styles/theme.qss) dan dimuat melalui loader adaptif [`src/styles.py`](../src/styles.py).
 
 ---
 
