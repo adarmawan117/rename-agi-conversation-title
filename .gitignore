@@ -45,3 +45,6 @@ Pengembangan.txt
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# conversation histories
+*conversation_history*
