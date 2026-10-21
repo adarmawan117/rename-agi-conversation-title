@@ -101,7 +101,6 @@ Panduan arsitektur mendalam, spesifikasi reverse engineering, dan panduan keaman
 * [**`AI_CONTEXT.md`**](.docs/AI_CONTEXT.md): Rekam jejak riset, solusi bug hilang percakapan via Dual-Sync UPSERT, zombie cleaner, subprocess detached flags, dan theming DWM.
 * [**`ARCHITECTURE.md`**](.docs/ARCHITECTURE.md): Diagram alur komponen, sequence diagram dual-sync pipeline, Protobuf wire format (Field 30/4 vs 1/2.1), dan modul responsibilities.
 * [**`BUILD_AND_PACKAGING.md`**](.docs/BUILD_AND_PACKAGING.md): Panduan kompilasi PyInstaller (`AGI Renamer.spec`), hidden imports dynamic blackboxprotobuf, dan bundling resources.
-* [**`SENSITIVE_DATA_AND_SECURITY.md`**](.docs/SENSITIVE_DATA_AND_SECURITY.md): Standar sanitasi identitas lokal, dynamic path resolution, proteksi kredensial, dan karantina `.gitignore`.
 
 ---
 
