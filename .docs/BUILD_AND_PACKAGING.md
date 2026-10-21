@@ -12,7 +12,7 @@ Aplikasi ini didistribusikan sebagai file biner Windows mandiri (`AGI Renamer.ex
 graph LR
     Src[run.py + src/ main_gui, rename_logic, settings_manager] --> PyInstaller[PyInstaller Engine]
     Spec[AGI Renamer.spec] --> PyInstaller
-    Icon[google-antigravity.ico] --> PyInstaller
+    Icon[resources/icon/google-antigravity.ico] --> PyInstaller
     PyInstaller --> OutDir[dist/AGI Renamer.exe<br/>Standalone Portable EXE]
 ```
 
@@ -32,10 +32,10 @@ File spesifikasi utama berada di root proyek: [`AGI Renamer.spec`](../AGI%20Rena
 
 2. **Aset Data & Ikon:**
    ```python
-   datas=[('google-antigravity.ico', '.')]
-   icon=['google-antigravity.ico']
+   datas=[('resources', 'resources')]
+   icon=['resources/icon/google-antigravity.ico']
    ```
-   Menyematkan file ikon aplikasi ke dalam root runtime virtual (`sys._MEIPASS`) dan menanamkannya ke dalam resource header binary Windows.
+   Menyematkan seluruh aset `resources/` (ikon dan tema QSS) ke dalam bundle runtime virtual (`sys._MEIPASS`) dan menanamkan ikon ke dalam resource header binary Windows.
 
 3. **Windowed Mode (Tanpa Jendela Konsol Hitam):**
    ```python
