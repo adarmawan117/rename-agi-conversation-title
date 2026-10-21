@@ -45,7 +45,7 @@ Hasilnya: Judul bisa diperpendek menjadi 2 karakter atau dipanjangkan hingga 500
 2. **GUI Interaktif (PyQt5):** Antarmuka Desktop modern, bersih, dan fungsional yang mudah digunakan tanpa perlu bermain-main dengan terminal CLI.
 3. **Auto-Discovery Database:** Mendeteksi otomatis file SQLite (`.db`) yang menampung "Judul Lama" di antara belasan _database_ obrolan di PC Anda.
 4. **Auto-Restart IDE:** Secara instan dan aman me-_reload_ `Antigravity IDE.exe` (menggunakan _taskkill_) agar judul baru langsung ter-render di _sidebar_ Antigravity IDE.
-5. **Konfigurasi Otomatis:** Mengingat lokasi instalasi _executable_ AGI Anda (`settings.json`).
+5. **Konfigurasi Otomatis (Zero-Setup):** Mendeteksi lokasi instalasi Antigravity IDE secara otomatis. File `settings.json` dibuat secara otomatis saat aplikasi pertama kali dijalankan tanpa perlu pengaturan manual (`settings.json.example` hanya sebagai cetak biru skema).
 
 ---
 
@@ -77,6 +77,9 @@ Hasilnya: Judul bisa diperpendek menjadi 2 karakter atau dipanjangkan hingga 500
    .venv\Scripts\python main_gui.py
    ```
    _(Tersedia juga file batch `install libs requirement.cmd` dan `run from venv.cmd` di dalam repositori untuk kemudahan klik ganda)._
+
+> [!TIP]
+> **Zero Configuration:** Aplikasi otomatis mendeteksi path instalasi Antigravity IDE di komputer Anda dan membuat file `settings.json` sendiri secara otomatis. Anda tidak perlu membuat atau mengedit konfigurasi secara manual (`settings.json.example` hanya sebagai cetak biru skema opsional).
 
 ### Panduan Layar (Usage):
 

@@ -1,19 +1,47 @@
+# Virtual Environment
 .venv/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
 venv/
+env/
 ENV/
 env.bak/
 venv.bak/
 
-# User settings
-settings.json
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
 
+# PyInstaller Build Artifacts
+build/
+dist/
 *.spec
-dist
-build
+
+# User Settings & Environment
+settings.json
+.env
+.env.*
+!*.example
+
+# Database, Binary State & Backups
+*.db
+*.db.bak
+*.vscdb
+*.vscdb.bak
+*.bak
+*.sqlite
+*.sqlite3
+*.pb
+*.jsonl
+
+# Temporary, Media & Local Tracking
+.tempmediaStorage/
+.user_uploaded/
+scratch/
 Pengembangan.txt
+*.log
+
+# OS Generated Files
+Thumbs.db
+desktop.ini
+.DS_Store
