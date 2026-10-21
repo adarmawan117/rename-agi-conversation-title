@@ -264,10 +264,60 @@ def rename_conversation(old_title: str, new_title: str) -> tuple[bool, str]:
     return rename_conversation_by_id(target_conv["id"], new_title)
 
 
+def scan_zombie_conversations() -> tuple[int, list[dict]]:
+    """
+    Scans trajectorySummaries in state.vscdb and returns count and list of zombie entries
+    whose .db or .pb file no longer exists on disk.
+    """
+    gs_path = get_global_storage_path()
+    if not os.path.exists(gs_path):
+        return 0, []
+
+    conversations_dir = get_conversations_dir()
+    existing_ids = {
+        os.path.splitext(f)[0]
+        for f in os.listdir(conversations_dir)
+        if f.endswith((".db", ".pb"))
+    } if os.path.exists(conversations_dir) else set()
+
+    try:
+        with sqlite3.connect(f"file:{gs_path}?mode=ro", uri=True, timeout=5.0) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT value FROM ItemTable WHERE key = 'antigravityUnifiedStateSync.trajectorySummaries'")
+            row = cursor.fetchone()
+            if not row or not row[0]:
+                return 0, []
+
+            raw_proto = base64.b64decode(row[0])
+            msg, _ = blackboxprotobuf.decode_message(raw_proto)
+
+            zombies = []
+            for item in msg.get("1", []):
+                cid = item.get("1", b"")
+                if isinstance(cid, bytes):
+                    cid = cid.decode("utf-8", "ignore")
+                if cid and cid not in existing_ids:
+                    title = "[Tanpa Judul]"
+                    inner_b64 = item.get("2", {}).get("1")
+                    if inner_b64:
+                        try:
+                            inner_msg, _ = blackboxprotobuf.decode_message(base64.b64decode(inner_b64))
+                            t = inner_msg.get("1", b"")
+                            title = t.decode("utf-8", "ignore") if isinstance(t, bytes) else str(t)
+                        except Exception:
+                            pass
+                    zombies.append({"id": cid, "title": title})
+
+            return len(zombies), zombies
+    except Exception as e:
+        print(f"[Warning] scan_zombie_conversations error: {e}")
+        return 0, []
+
+
 def clean_zombie_conversations() -> tuple[bool, str, int]:
     """
     Scans trajectorySummaries in state.vscdb and purges any orphaned entries
-    whose .db file has already been deleted from disk.
+    whose .db or .pb file has already been deleted from disk.
     Returns (success, message, purged_count).
     """
     gs_path = get_global_storage_path()
@@ -275,7 +325,11 @@ def clean_zombie_conversations() -> tuple[bool, str, int]:
         return False, f"state.vscdb tidak ditemukan: {gs_path}", 0
 
     conversations_dir = get_conversations_dir()
-    existing_dbs = {f[:-3] for f in os.listdir(conversations_dir) if f.endswith(".db")} if os.path.exists(conversations_dir) else set()
+    existing_ids = {
+        os.path.splitext(f)[0]
+        for f in os.listdir(conversations_dir)
+        if f.endswith((".db", ".pb"))
+    } if os.path.exists(conversations_dir) else set()
 
     try:
         backup_file(gs_path)
@@ -298,7 +352,7 @@ def clean_zombie_conversations() -> tuple[bool, str, int]:
                 cid = item.get("1", b"")
                 if isinstance(cid, bytes):
                     cid = cid.decode("utf-8", "ignore")
-                if cid in existing_dbs:
+                if cid in existing_ids:
                     if cid not in seen_ids:
                         seen_ids.add(cid)
                         cleaned_items.append(item)
@@ -319,3 +373,4 @@ def clean_zombie_conversations() -> tuple[bool, str, int]:
                 return True, "Tidak ada percakapan zombie/hantu yang ditemukan. Cache sudah bersih.", 0
     except Exception as e:
         return False, f"Gagal membersihkan percakapan zombie: {e}", 0
+
