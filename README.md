@@ -74,7 +74,7 @@ Hasilnya: Judul bisa diperpendek menjadi 2 karakter atau dipanjangkan hingga 500
    ```
 5. Jalankan aplikasi GUI:
    ```cmd
-   .venv\Scripts\python main_gui.py
+   .venv\Scripts\python run.py
    ```
    _(Tersedia juga file batch `install libs requirement.cmd` dan `run from venv.cmd` di dalam repositori untuk kemudahan klik ganda)._
 

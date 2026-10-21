@@ -15,16 +15,47 @@ from PyQt5.QtWidgets import (
     QFrame, QStatusBar, QProgressBar, QSizeGrip
 )
 
-from rename_logic import (
-    list_conversations,
-    rename_conversation_by_id,
-    rename_conversation,
-    scan_zombie_conversations,
-    clean_zombie_conversations,
-    sync_all_active_conversations_to_sidebar,
-    get_conversations_dir
-)
-from settings_manager import get_agi_path, save_agi_path
+try:
+    from src.rename_logic import (
+        list_conversations,
+        rename_conversation_by_id,
+        rename_conversation,
+        scan_zombie_conversations,
+        clean_zombie_conversations,
+        sync_all_active_conversations_to_sidebar,
+        get_conversations_dir
+    )
+    from src.settings_manager import get_agi_path, save_agi_path
+except ImportError:
+    from rename_logic import (
+        list_conversations,
+        rename_conversation_by_id,
+        rename_conversation,
+        scan_zombie_conversations,
+        clean_zombie_conversations,
+        sync_all_active_conversations_to_sidebar,
+        get_conversations_dir
+    )
+    from settings_manager import get_agi_path, save_agi_path
+
+
+def get_app_icon_path() -> str:
+    """Finds google-antigravity.ico across frozen bundle, parent root, resources, and current dir."""
+    if getattr(sys, 'frozen', False):
+        p = os.path.join(sys._MEIPASS, "google-antigravity.ico")
+        if os.path.exists(p):
+            return p
+    candidates = [
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "google-antigravity.ico"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "google-antigravity.ico"),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "resources", "icon", "google-antigravity.ico"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "icon", "google-antigravity.ico"),
+        "google-antigravity.ico"
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return ""
 
 
 # --- ADR Prompt Manager: Ocean Dark Theme QSS ---
@@ -397,10 +428,8 @@ class MainApp(QMainWindow):
         self.setMinimumSize(720, 560)
 
         # Application Icon
-        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "google-antigravity.ico")
-        if getattr(sys, 'frozen', False):
-            icon_path = os.path.join(sys._MEIPASS, "google-antigravity.ico")
-        if os.path.exists(icon_path):
+        icon_path = get_app_icon_path()
+        if icon_path and os.path.exists(icon_path):
             self.setWindowIcon(QtGui.QIcon(icon_path))
 
         self.all_conversations = []
@@ -431,10 +460,8 @@ class MainApp(QMainWindow):
         title_layout.setSpacing(8)
 
         # App Icon in Header
-        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "google-antigravity.ico")
-        if getattr(sys, 'frozen', False):
-            icon_path = os.path.join(sys._MEIPASS, "google-antigravity.ico")
-        if os.path.exists(icon_path):
+        icon_path = get_app_icon_path()
+        if icon_path and os.path.exists(icon_path):
             icon_lbl = QLabel()
             icon_lbl.setPixmap(QtGui.QPixmap(icon_path).scaled(22, 22, Qt.KeepAspectRatio, Qt.SmoothTransformation))
             title_layout.addWidget(icon_lbl)
@@ -793,7 +820,7 @@ class MainApp(QMainWindow):
             show_warning(self, "Error Meluncurkan AGI", f"Gagal membuka AGI: {e}")
 
 
-if __name__ == '__main__':
+def main():
     # Silence Font Spam Logs
     os.environ["QT_LOGGING_RULES"] = "qt.qpa.fonts=false"
 
@@ -803,3 +830,7 @@ if __name__ == '__main__':
     window = MainApp()
     window.show()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()

@@ -1,1 +1,1 @@
-.venv\Scripts\python main_gui.py
+.venv\Scripts\python run.py

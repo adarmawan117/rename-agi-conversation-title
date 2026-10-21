@@ -10,7 +10,7 @@ Aplikasi ini didistribusikan sebagai file biner Windows mandiri (`AGI Renamer.ex
 
 ```mermaid
 graph LR
-    Src[main_gui.py + rename_logic.py + settings_manager.py] --> PyInstaller[PyInstaller Engine]
+    Src[run.py + src/ main_gui, rename_logic, settings_manager] --> PyInstaller[PyInstaller Engine]
     Spec[AGI Renamer.spec] --> PyInstaller
     Icon[google-antigravity.ico] --> PyInstaller
     PyInstaller --> OutDir[dist/AGI Renamer.exe<br/>Standalone Portable EXE]
@@ -47,7 +47,7 @@ File spesifikasi utama berada di root proyek: [`AGI Renamer.spec`](../AGI%20Rena
 
 ## 3. Resolusi Path Ikon saat Runtime (`sys._MEIPASS`)
 
-Di dalam kode [`main_gui.py`](../main_gui.py), penanganan path ikon dirancang adaptif antara mode development skrip dan mode binary compiled:
+Di dalam kode [`src/main_gui.py`](../src/main_gui.py), penanganan path ikon dirancang adaptif antara mode development skrip dan mode binary compiled:
 
 ```python
 icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "google-antigravity.ico")

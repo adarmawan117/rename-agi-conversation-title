@@ -1,20 +1,32 @@
 import json
 import os
 
-SETTINGS_FILE = "settings.json"
+def get_settings_file_path() -> str:
+    """Returns absolute path to settings.json at project root."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    target = os.path.join(base_dir, "settings.json")
+    if os.path.exists(target):
+        return target
+    if os.path.exists("settings.json"):
+        return os.path.abspath("settings.json")
+    return target
+
 
 def load_settings():
-    if not os.path.exists(SETTINGS_FILE):
+    path = get_settings_file_path()
+    if not os.path.exists(path):
         return {}
     try:
-        with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     except:
         return {}
 
+
 def save_settings(settings):
+    path = get_settings_file_path()
     try:
-        with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(settings, f, indent=4)
     except Exception as e:
         print(f"Failed to save settings: {e}")
